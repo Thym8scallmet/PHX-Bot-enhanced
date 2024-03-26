@@ -6,130 +6,129 @@ from discord.ext import commands
 
 
 class PurgeBot(commands.Cog):
-    def __init__(self, client: commands.Bot):
-        self.client = client
 
-    @app_commands.command(name="purge_bot_help", description="Purge bot help and Information")
-    async def purgehelp(self, interaction: discord.Interaction):
-        embed = discord.Embed(  # Here we assign the discord.Embed object to embed
-            title="Purge Bot Instructions",
-            description=(
-                "Purge bot is a helpful tool that can be used to delete messages from a channel.\n\n "
-                "To use the purge bot, you need to have the Admin role:\n\n"
-                "For Purge bot to work, it must have the following Permissions.\n"
-                "1. Manage Messages\n2. View channel\n3. Read Message History\n4. Send Messages\n\n"
-                "Use:\n"
-                "- The /purge command to delete up to 100 messages in a channel.\n"
-                "- The /purge_old command to delete messages older than 14 days\n"
-                #"-- Use this command only if /purge does not remove messages in the channel.--\n"
-                #"- The /schedule_purge command to schedule a purge the channel you are currently in.\n"
-                #"- The /view_jobs command to view all scheduled purge jobs.\n"
-                #"- The /cancel_job command to cancel a scheduled purge job.\n"
-            ),
-        )
-        await interaction.response.send_message(embed=embed , ephemeral=True)
+  def __init__(self, client: commands.Bot):
+    self.client = client
 
-    @app_commands.command(name="purge", description="Purge messages up to 100")
-    async def purge(self, interaction: discord.Interaction, amount: int):
-        # Ensure the interaction is in a guild
-        if not interaction.guild:
-            await interaction.response.send_message("This command can only be used within a server.", ephemeral=True)
-            return
-        # Fetches member from interaction's guild based on the interaction's user ID
-        member = interaction.guild.get_member(interaction.user.id)
+  @app_commands.command(name="purge_bot_help",
+                        description="Purge bot help and Information")
+  @app_commands.guilds(
+      discord.Object(id=1045479020940234783),
+      discord.Object(id=383365467894710272))  # Enter Allowed Guild IDs
+  async def purgehelp(self, interaction: discord.Interaction):
+    embed = discord.Embed(
+        title="Purge Bot Instructions",
+        description=
+        ("Purge bot is a helpful tool that can be used to delete messages from a channel.\n\n"
+         "To use the purge bot, you need to have the Admin role or manage messages permission.\n\n"
+         "For Purge bot to work, it must have the following Permissions:\n"
+         "1. Manage Messages\n2. View channel\n3. Read Message History\n4. Send Messages\n\n"
+         "Use:\n"
+         "- The /purge command to delete messages in a channel including messages older than 14 days.\n"
+         "- If there are several messages older than 14 days, please be patient as the process may take some time to complete.\n\n"
+         ),
+    )
+    await interaction.response.send_message(embed=embed, ephemeral=True)
 
-        # If for some reason, member is None, handle the case
-        if member is None:
-            await interaction.response.send_message("Could not retrieve member information.", ephemeral=True)
-            return
+  @app_commands.command(
+      name="purge",
+      description="Purge recent messages or messages older than 14 days")
+  @app_commands.guilds(
+      discord.Object(id=1045479020940234783),
+      discord.Object(id=383365467894710272))  #Enter Allowed Guild IDs
+  async def purge(self, interaction: discord.Interaction, amount: int):
+    if not interaction.guild:
+      await interaction.response.send_message(
+          "This command can only be used within a server.", ephemeral=True)
+      return
+    member = interaction.guild.get_member(interaction.user.id)
+    if member is None:
+      await interaction.response.send_message(
+          "Could not retrieve member information.", ephemeral=True)
+      return
+    roles = [role.name for role in member.roles]
+    if "Admin" not in roles and not member.guild_permissions.manage_messages:
+      await interaction.response.send_message(
+          "You do not have the required permissions to use this command.",
+          ephemeral=True)
+      return
+    channel = interaction.channel
+    if not isinstance(channel, discord.TextChannel):
+      await interaction.response.send_message(
+          content="This command can only be used in text channels.")
+      return
+    permissions = channel.permissions_for(channel.guild.me)
+    if not permissions.manage_messages or not permissions.read_message_history:
+      await interaction.response.send_message(
+          content=
+          "Purgebot does not have permissions to manage messages in this channel."
+      )
+      return
 
-        # Check if the sender has the required role (using interaction.member now)
-        roles = [role.name for role in member.roles]
-        if "Admin" not in roles and "Moderator" not in roles and "Manager" not in roles:
-            await interaction.response.send_message("You do not have the required role to use this command.", ephemeral=True)
-            return
+    await interaction.response.send_message(content="Checking messages...")
 
-        channel = interaction.channel
+    older_messages_exist = False
+    async for message in channel.history(limit=min(100, amount)):
+      if (discord.utils.utcnow() - message.created_at).days > 14:
+        older_messages_exist = True
+        break
 
-        # Ensure the command is used in a TextChannel
-        if not isinstance(channel, discord.TextChannel):
-            await interaction.response.send_message(content="This command can only be used in text channels.")
-            return
+    if older_messages_exist:
+      await interaction.followup.send(
+          content=
+          "Some messages are older than 14 days. Purging will start now. Please be patient as this may take some time.",
+          ephemeral=True)
 
-        # Check if the bot has the required permissions
-        permissions = channel.permissions_for(channel.guild.me)
-        if not permissions.manage_messages or not permissions.read_message_history:
-            await interaction.response.send_message(content="Purgebot does not have permissions to manage messages in this channel.")
-            return
+    purged = 0
+    while amount > 0:
+      messages = [
+          message async for message in channel.history(limit=min(100, amount))
+      ]
+      older_messages = [
+          m for m in messages
+          if (discord.utils.utcnow() - m.created_at).days > 14
+      ]
+      recent_messages = [m for m in messages if m not in older_messages]
 
-        await interaction.response.send_message(content="Purging messages...")
-        await channel.purge(limit=amount)
+      if recent_messages:
+        try:
+          await channel.delete_messages(recent_messages)
+          purged += len(recent_messages)
+          amount -= len(recent_messages)
+        except discord.HTTPException:
+          for msg in recent_messages:
+            try:
+              await msg.delete()
+              purged += 1
+              amount -= 1
+            except discord.HTTPException:
+              continue
 
-    @purge.error
-    async def purge_error(self, interaction: discord.Interaction, error: Exception):
-        await interaction.response.send_message(content=str(error), ephemeral=True)
+        await asyncio.sleep(1.5)
 
-    @app_commands.command(name="purge_old", description="Purge messages older than 14 days.")
-    async def clear(self, interaction: discord.Interaction, amount: int):
-        # Ensure the interaction is in a guild
-        if not interaction.guild:
-            await interaction.response.send_message("This command can only be used within a server.", ephemeral=True)
-            return
+      for msg in older_messages:
+        try:
+          await msg.delete()
+          purged += 1
+          amount -= 1
+        except discord.HTTPException:
+          continue
 
-        # Fetches member from interaction's guild based on the interaction's user ID
-        member = interaction.guild.get_member(interaction.user.id)
+        await asyncio.sleep(1.5)
 
-        # If for some reason, member is None, handle the case
-        if member is None:
-            await interaction.response.send_message("Could not retrieve member information.", ephemeral=True)
-            return
+      if not messages or amount <= 0:
+        break
 
-        # Check if the sender has the required role
-        roles = [role.name for role in member.roles]
-        if "Admin" not in roles and "Moderator" not in roles and "Manager" not in roles:
-            await interaction.response.send_message("You do not have the required role to use this command.", ephemeral=True)
-            return
+    msg = await interaction.followup.send(content=f'Purged {purged} messages.')
+    await asyncio.sleep(7)
+    await msg.delete()
 
-        channel = interaction.channel
-
-        # Ensure the command is used in a TextChannel
-        if not isinstance(channel, discord.TextChannel):
-            await interaction.response.send_message(content="This command can only be used in text channels.")
-            return
-
-        # Check if the bot has the required permissions
-        permissions = channel.permissions_for(channel.guild.me)
-        if not permissions.manage_messages or not permissions.read_message_history:
-            await interaction.response.send_message(content="Purgebot does not have permissions to manage or read messages history in this channel.")
-            return
-
-        is_old_enough = False
-        async for message in channel.history(limit=5):
-            if (discord.utils.utcnow() - message.created_at).days > 14:
-                is_old_enough = True
-                break
-
-        if not is_old_enough:
-            await interaction.response.send_message(
-                "No messages older than 14 days were found. "
-                "Please use the /purge command for recent messages.")
-            return
-
-        await interaction.response.send_message("Processing... This might take some time.")
-
-        deleted = 0
-        async for message in channel.history(limit=amount):
-            if (discord.utils.utcnow() - message.created_at).days > 14:
-                await message.delete()
-                deleted += 1
-        await asyncio.sleep(1.2)  # Include this if rate limit concerns are present
-
-        await interaction.followup.send(f"Deleted {deleted} messages older than 14 days.")
-
-    @clear.error
-    async def purgemore_error(self, interaction: discord.Interaction, error: Exception):
-        await interaction.response.send_message(content=str(error), ephemeral=True)
+  @purge.error
+  async def purge_error(self, interaction: discord.Interaction,
+                        error: Exception):
+    await interaction.response.send_message(
+        content=f"An error occurred: {str(error)}", ephemeral=True)
 
 
 async def setup(client: commands.Bot) -> None:
-    await client.add_cog(PurgeBot(client))
+  await client.add_cog(PurgeBot(client))
