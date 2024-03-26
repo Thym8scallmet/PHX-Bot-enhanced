@@ -1,7 +1,3 @@
-#Make Messages is a helper for testing the purge function
-#It should not be included in the final project.
-#The file should be deleted and the cog removed from the main.py file.
-
 import asyncio
 
 import discord
@@ -11,41 +7,40 @@ from discord.ext import commands
 
 class MakeMessages(commands.Cog):
 
-  def __init__(self, client: commands.Bot):
-    self.client = client
+    def __init__(self, client: commands.Bot):
+        self.client = client
 
-  @app_commands.command(
-      name="make_messages",
-      description="Makes a numbered list of messages up to 50")
-  @app_commands.guilds(
-      #discord.Object(id=1045479020940234783), #PHX server
-      discord.Object(id=383365467894710272))  #Enter Allowed Guild IDs
-  async def make_messages(self,
-                          interaction: discord.Interaction,
-                          number_of_messages: int = 5):
-    # Before entering the loop, defer the response
-    await interaction.response.defer(ephemeral=True)
-    # Ensure the number is within the limit of up to 50
-    if number_of_messages < 1 or number_of_messages > 50:
-      await interaction.response.send_message(
-          "Please specify a number between 1 and 50.")
-      return
+    @app_commands.command(
+        name="make_messages",
+        description="Makes a numbered list of messages up to 50")
+    async def make_messages(self, interaction: discord.Interaction, number_of_messages: int = 5):
+        # Before entering the loop, defer the response
+        await interaction.response.defer(ephemeral=True)
 
-    # Generate and send the specified number of messages with one second delay between each
-    for i in range(1, number_of_messages + 1):
-      if isinstance(interaction.channel, discord.TextChannel):
-        await interaction.channel.send(
-            f"{i}. This is an app-generated message.", silent=True)
-        await asyncio.sleep(1)  # Introduce a one-second delay here
-      else:
-        await interaction.response.send_message(
-            "This command can only be used in text channels.", ephemeral=True)
-        break  # Exit the loop if the channel does not support sending messages to prevent further errors
+        if number_of_messages < 1 or number_of_messages > 50:
+            await interaction.followup.send("Please specify a number between 1 and 50.")
+            return
 
-    # Send a final message indicating completion
-    await interaction.followup.send("Messages created successfully.",
-                                    ephemeral=True)
+        for i in range(1, number_of_messages + 1):
+            if isinstance(interaction.channel, discord.TextChannel):
+                await interaction.channel.send(f"{i}. This is an app-generated message.")
+                await asyncio.sleep(1)  # Introduce a one-second delay here
+            else:
+                await interaction.followup.send("This command can only be used in text channels.", ephemeral=True)
+                break
 
+        await interaction.followup.send("Messages created successfully.", ephemeral=True)
 
-async def setup(client: commands.Bot) -> None:
-  await client.add_cog(MakeMessages(client))
+async def setup(client: commands.Bot):
+    # Initialize the cog
+    cog = MakeMessages(client)
+    await client.add_cog(cog)
+
+    # Define allowed guilds
+    allowed_guild_ids = [383365467894710272]  # Add other guild IDs as needed
+
+    # Register the cog's commands specifically for the allowed guilds
+    for guild_id in allowed_guild_ids:
+        # Sync the global commands to the guild, making them appear only in the defined guilds
+        client.tree.copy_global_to(guild=discord.Object(id=guild_id))
+    await client.tree.sync()

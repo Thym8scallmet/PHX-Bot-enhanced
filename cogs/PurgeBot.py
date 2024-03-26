@@ -12,9 +12,9 @@ class PurgeBot(commands.Cog):
 
   @app_commands.command(name="purge_bot_help",
                         description="Purge bot help and Information")
-  @app_commands.guilds(
-      discord.Object(id=1045479020940234783),
-      discord.Object(id=383365467894710272))  # Enter Allowed Guild IDs
+  #@app_commands.guilds(
+      #discord.Object(id=1045479020940234783),
+      #discord.Object(id=383365467894710272))  # Enter Allowed Guild IDs
   async def purgehelp(self, interaction: discord.Interaction):
     embed = discord.Embed(
         title="Purge Bot Instructions",
@@ -33,9 +33,9 @@ class PurgeBot(commands.Cog):
   @app_commands.command(
       name="purge",
       description="Purge recent messages or messages older than 14 days")
-  @app_commands.guilds(
-      discord.Object(id=1045479020940234783),
-      discord.Object(id=383365467894710272))  #Enter Allowed Guild IDs
+  #@app_commands.guilds(
+      #discord.Object(id=1045479020940234783),
+      #discord.Object(id=383365467894710272))  #Enter Allowed Guild IDs
   async def purge(self, interaction: discord.Interaction, amount: int):
     if not interaction.guild:
       await interaction.response.send_message(

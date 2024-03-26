@@ -9,7 +9,7 @@ class SSTimer(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
 
-    @app_commands.command(name="sstimer", description="Gives a one minute timer for taking a screenshot")
+    @app_commands.command(name="ss_timer", description="Gives a one minute timer for taking a screenshot")
     async def sstimer(self, interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=True)  # Defer the response
         msg = await interaction.followup.send("Starting screenshot timer. Get ready to take your screenshot.", ephemeral=True)
