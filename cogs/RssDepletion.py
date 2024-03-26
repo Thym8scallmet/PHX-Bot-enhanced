@@ -81,7 +81,7 @@ class RssDepletion(commands.Cog):
               "calculate and display the time until resource depletion.\n"
           ),
       )
-      await interaction.response.send_message(embed=embed)
+      await interaction.response.send_message(embed=embed, ephemeral=True)
       #await msg.delete()
 
 

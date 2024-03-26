@@ -1,10 +1,26 @@
 import os
 import platform
 import time
+from threading import Thread
 
 import discord
 from colorama import Back, Fore, Style
 from discord.ext import commands
+from flask import Flask
+
+#for hosting to to discord
+app = Flask('')
+
+@app.route('/')
+def home():
+  return "PHX bot is up and running live!"
+
+def run():
+  app.run(host='0.0.0.0', port=8080)
+
+def keep_alive():
+  t = Thread(target=run)
+  t.start()
 
 # Start of bot code
 client = commands.Bot(command_prefix='.', intents=discord.Intents.all())

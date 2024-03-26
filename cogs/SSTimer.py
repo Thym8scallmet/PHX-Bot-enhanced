@@ -44,7 +44,7 @@ class SSTimer(commands.Cog):
         await msg.edit(content="Take your second screenshot now!")
         await asyncio.sleep(2)  # Wait before final message, adjust to ensure timings match
 
-        await msg.edit(content="Screenshot Timer has Finished")
+        await msg.edit(content="Screenshot Timer has Finished. Run `/rss_depletion` and input the values from your screenshots.")
 
 async def setup(client: commands.Bot) -> None:
     await client.add_cog(SSTimer(client))
