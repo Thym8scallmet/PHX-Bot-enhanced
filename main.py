@@ -31,7 +31,7 @@ async def setup_hook():
   try:
     for cog in [
         "cogs.TileRS", "cogs.PurgeBot", "cogs.RssDepletion",
-        "cogs.MakeMessages", "cogs.SSTimer", "cogs.Translate"
+        "cogs.SSTimer", "cogs.Translate"
     ]:
       current_cog = cog  # Update current_cog before attempting to load
       await client.load_extension(cog)
@@ -66,9 +66,11 @@ async def on_ready():
     print(prfx + " Bot is Logged in and ready")
 
 
-# Checks to make sure the token is loaded properly for Discord
 token = os.getenv("TOKEN")
-if token is not None:
-  client.run(token)
-else:
-  print("Token not loaded properly. Check your environment variables.")
+# Just before starting your bot
+if __name__ == "__main__":
+  keep_alive()  # Start the Flask web server
+  if token is not None:
+    client.run(token)
+  else:
+    print("Token not loaded properly. Check your environment variables.")

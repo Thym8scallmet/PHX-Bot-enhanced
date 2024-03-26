@@ -21,10 +21,10 @@ class RssDepletion(commands.Cog):
     async def on_submit(self, interaction: discord.Interaction):
         await interaction.response.defer() 
         try:
-            num1 = float(self.starting_amount.value)
-            num2 = float(self.amount_after_one_minute.value)
+            num1 = float(self.starting_amount.value.replace(',', ''))
+            num2 = float(self.amount_after_one_minute.value.replace(',', ''))
         except ValueError:
-            await interaction.response.send_message("Please enter valid numbers.")
+            await interaction.followup.send("Please enter valid numbers.")
             return
 
         rate = num1 - num2
