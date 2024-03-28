@@ -31,7 +31,7 @@ async def setup_hook():
   try:
     for cog in [
         "cogs.TileRS", "cogs.PurgeBot", "cogs.RssDepletion",
-        "cogs.SSTimer", "cogs.Translate"
+        "cogs.SSTimer", "cogs.Feedback", "cogs.Translate"
     ]:
       current_cog = cog  # Update current_cog before attempting to load
       await client.load_extension(cog)
