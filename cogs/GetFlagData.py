@@ -1,5 +1,6 @@
 import datetime
 import json
+import os
 
 import discord
 import gspread
@@ -10,7 +11,20 @@ from discord.ext import commands
 class GetFlagData(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
-        self.gc = gspread.service_account(filename="flagcapturedata-319e906a9631.json")
+        # Update to load the service account details from the dictionary and not directly from the file.
+        config = {
+            "type": "service_account",
+            "project_id": "flagcapturedata",
+            "private_key_id": "319e906a9631c53c1cd2d358cfc3432b11de428c",
+            "private_key": os.environ.get('GCP_PRIVATE_KEY'),  # Load the private key from an environment variable
+            "client_email": "flagcapturedata@flagcapturedata.iam.gserviceaccount.com",
+            "client_id": "109811611220042004574",
+            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+            "token_uri": "https://oauth2.googleapis.com/token",
+            "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+            "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/flagcapturedata%40flagcapturedata.iam.gserviceaccount.com"
+        }
+        self.gc = gspread.service_account_from_dict(config)
         self.flag_data_workbook = self.gc.open("FlagData")
         self.allowed_guilds = [383365467894710272, 1045479020940234783]  # guild IDs
 
@@ -19,7 +33,7 @@ class GetFlagData(commands.Cog):
 
     async def user_is_admin(self, interaction: discord.Interaction):
         if interaction.guild is None:
-            return False 
+            return False
         member = interaction.guild.get_member(interaction.user.id)
         return any(role.name.lower() == 'admin' for role in member.roles)
 
