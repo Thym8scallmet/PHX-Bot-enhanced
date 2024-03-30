@@ -11,35 +11,46 @@ from flask import Flask
 #for hosting to to discord
 app = Flask('')
 
+
 @app.route('/')
 def home():
   return "PHX bot is up and running live!"
 
+
 def run():
   app.run(host='0.0.0.0', port=8080)
+
 
 def keep_alive():
   t = Thread(target=run)
   t.start()
+
 
 # Start of bot code
 client = commands.Bot(command_prefix='.', intents=discord.Intents.all())
 
 
 async def setup_hook():
-  current_cog = None  # Introduce variable to keep track of the current cog
-  try:
-    for cog in [
-        "cogs.TileRS", "cogs.PurgeBot", "cogs.RssDepletion",
-        "cogs.SSTimer", "cogs.Feedback", "cogs.Translate"
-    ]:
-      current_cog = cog  # Update current_cog before attempting to load
-      await client.load_extension(cog)
-  except Exception as e:
-    if current_cog:  # Check if current_cog has been set
-      print(f"Failed to load extension {current_cog}:", e)
-    else:
-      print("Failed to load a cog due to an error before loading:", e)
+        current_cog = None  # Introduce variable to keep track of the current cog
+        try:
+          for cog in [
+              "cogs.TileRS",
+              "cogs.PurgeBot",
+              "cogs.RssDepletion",              
+              "cogs.Feedback",
+              "cogs.SSTimer",
+              "cogs.MightDistribution",
+              "cogs.GetFlagData",
+              "cogs.Translate",
+              "cogs.BotHelp",
+          ]:
+            current_cog = cog  # Update current_cog before attempting to load
+            await client.load_extension(cog)
+        except Exception as e:
+          if current_cog:  # Check if current_cog has been set
+            print(f"Failed to load extension {current_cog}:", e)
+          else:
+            print("Failed to load a cog due to an error before loading:", e)
 
 
 client.setup_hook = setup_hook
