@@ -64,6 +64,14 @@ class MightDistribution(commands.Cog):
                       inline=False)
 
     return embed
+    
+  @commands.Cog.listener()
+  async def on_ready(self):
+      for guild in self.client.guilds:
+          file_path = f'playerlist_{guild.id}.json'  # Correctly define file_path using guild.id
+          if not os.path.exists(file_path):  # Now, file_path is defined and can be used
+                with open(file_path, 'w', encoding='utf-8') as file:
+                    json.dump([], file, indent=4)
 
   @commands.Cog.listener()
   async def on_guild_join(self, guild: discord.Guild):
