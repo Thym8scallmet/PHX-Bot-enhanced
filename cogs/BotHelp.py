@@ -94,8 +94,8 @@ class BotHelp(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
 
-    @app_commands.command(name="phx_bot_help", description="Displays help for bot commands.")
-    async def help_command(self, interaction: discord.Interaction):
+    @app_commands.command(name="phx_bot_hellp", description="Displays help for bot commands.")
+    async def hellp_command(self, interaction: discord.Interaction):
         view = View()
         select = HelpSelect(
             placeholder="Choose a command to get help on...",

@@ -38,7 +38,7 @@ class GetFlagData(commands.Cog):
         player_list = [{'name': row['Name'], 'might': int(row['Might'])} for row in data if row['Name'] and row['Might']]
         with open('playerlist_1045479020940234783.json', 'w', encoding='utf-8') as f:
             json.dump(player_list, f, ensure_ascii=False, indent=4)
-        await interaction.response.send_message("Data imported and saved successfully into playerlist.json")
+        await interaction.response.send_message("Data imported and saved successfully into the playerlist")
 
     @app_commands.command(name='send_flag_data')
     async def update_google_sheet(self, interaction: discord.Interaction):
