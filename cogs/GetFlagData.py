@@ -25,7 +25,7 @@ class GetFlagData(commands.Cog):
         member = interaction.guild.get_member(interaction.user.id)
         return any(role.name.lower() == 'admin' for role in member.roles)
 
-    @app_commands.command(name='get_flag_data')
+    @app_commands.command(name='get_flag_data', description='Gets updated Flag Capture Data from the spreadsheet and sends it to the bot.' )
     async def get_flag_data(self, interaction: discord.Interaction):
         if not await self.guild_is_allowed(interaction):
             await interaction.response.send_message("Your server does not have access to this feature.", ephemeral=True)
@@ -40,7 +40,7 @@ class GetFlagData(commands.Cog):
             json.dump(player_list, f, ensure_ascii=False, indent=4)
         await interaction.response.send_message("Data imported and saved successfully into the playerlist")
 
-    @app_commands.command(name='send_flag_data')
+    @app_commands.command(name='send_flag_data', description='Sends the Flag Capture Data to the spreadsheet' )
     async def update_google_sheet(self, interaction: discord.Interaction):
         if not await self.guild_is_allowed(interaction):
             await interaction.response.send_message("Your server does not have access to this feature.", ephemeral=True)

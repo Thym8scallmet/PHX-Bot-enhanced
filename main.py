@@ -40,6 +40,10 @@ async def setup_hook():
               "cogs.Translate",
               "cogs.BotHelp",
               "cogs.GetSendGather",
+              "cogs.ApexLine",
+              "cogs.AutoTranslate",
+              "cogs.PinMessage",
+              "cogs.TranslateUsage"
           ]:
             current_cog = cog  # Update current_cog before attempting to load
             await client.load_extension(cog)

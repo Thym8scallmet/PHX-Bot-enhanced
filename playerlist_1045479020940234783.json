@@ -9,11 +9,19 @@
     },
     {
         "name": "Eberwolf",
-        "might": 9183074
+        "might": 9415952
     },
     {
         "name": "*69*",
         "might": 8643683
+    },
+    {
+        "name": "Ender",
+        "might": 8183074
+    },
+    {
+        "name": "Nosdraw69",
+        "might": 7268202
     },
     {
         "name": "Tranaus",
@@ -22,6 +30,10 @@
     {
         "name": "Zicon",
         "might": 5915776
+    },
+    {
+        "name": "Prp",
+        "might": 4983074
     },
     {
         "name": "Six Guns Maveric",
@@ -72,12 +84,8 @@
         "might": 2567461
     },
     {
-        "name": "Woompaloompa",
+        "name": "SpeakerForTheDead",
         "might": 2534094
-    },
-    {
-        "name": "Andrea",
-        "might": 2524956
     },
     {
         "name": "That1Guy",
@@ -180,6 +188,10 @@
         "might": 309989
     },
     {
+        "name": "Sassy Cougar",
+        "might": 304029
+    },
+    {
         "name": "TimEnchanterPrime",
         "might": 294029
     },
@@ -218,6 +230,10 @@
     {
         "name": "LilNatters",
         "might": 65236
+    },
+    {
+        "name": "Devious Kitten",
+        "might": 65000
     },
     {
         "name": "Shootingblanks",
@@ -270,21 +286,5 @@
     {
         "name": "Kraken",
         "might": 4639
-    },
-    {
-        "name": "Nosdraw69",
-        "might": 7268202
-    },
-    {
-        "name": "Ender",
-        "might": 8183074
-    },
-    {
-        "name": "Prp",
-        "might": 4983074
-    },
-    {
-        "name": "Devious Kitten",
-        "might": 65000
     }
 ]
